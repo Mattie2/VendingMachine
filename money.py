@@ -3,7 +3,6 @@ Contains all models relating to money, coins, etc.
 """
 from decimal import Decimal
 
-
 class CashAmount(Decimal):
     """
     Represents a cash amount.

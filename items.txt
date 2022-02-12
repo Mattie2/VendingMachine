@@ -1,4 +1,0 @@
-Pepsi,0.5
-Fanta,0.5
-Coke,0.5
-Chocolate,1.0
