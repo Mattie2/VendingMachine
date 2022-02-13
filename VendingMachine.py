@@ -26,6 +26,7 @@ class VendingMachine:
         self.welcome_message()
         self.get_stock()
         self.display_stock()
+        self.choose_item()
 
     def welcome_message(self):
         print("Hello and welcome to the vending machine.")
@@ -45,26 +46,40 @@ class VendingMachine:
                 number = 0
             code = letter+str(number)
             # text file format: item_name,item_price
-            lineArray = line.split(",")
-            name = lineArray[0]
-            price = lineArray[1]
-            amount = lineArray[2]
+            line_array = line.split(",")
+            name = line_array[0]
+            #converts to float
+            price_float = float(line_array[1])          
+            #stores as string to 2 decimal places
+            price_string = "{:.2f}".format(price_float)
+            if price_float < 1:
+                price_string = str(price_string).split(".")[1]+"p"
+            else:
+                price_string = "£"+str(price_string)
+            amount = line_array[2]
             
             self.items_dictionary[code] = {
                 'name': name,
-                'price': price, 
+                'stored_price': price_float, 
+                'display_price': price_string, 
                 'amount': amount
             }
             number += 1
 
     # this should be called at the start and each time they pay
     def display_stock(self):
+        # see_stock=input("Please press enter to see the stock")
+        #loops through every product - by its product code
         for product_code,product_info in self.items_dictionary.items():
-            print(product_code)
-            for key in product_info:
-                if product_info[key]
-                print(key + ':' + product_info[key])
+            #prints out the product code, name, price and amount
+            print(product_code+":"+product_info['name']+" - "+product_info['display_price']+" x "+str(product_info['amount']))
 
+    def choose_item(self):
+        code = input("Please enter the product code for the item you would like to enter\n")
+        if code in self.items_dictionary:
+            print("That will be "+str(self.items_dictionary[code]['display_price']))
+        else:
+            print("That isn't a valid selection")
 
     def update_stock(self, code, amount):
         return
