@@ -1,4 +1,5 @@
 # from vending_machine import CASH_CLASSES
+from numpy import take
 import money
 # TODO: have welcome screen and choice of products ready next time
 
@@ -78,16 +79,37 @@ class VendingMachine:
         code = input("Please enter the product code for the item you would like to enter\n")
         if code in self.items_dictionary:
             print("That will be "+str(self.items_dictionary[code]['display_price']))
+            self.take_payment(code)
         else:
             print("That isn't a valid selection")
+
+    def take_payment(self, product_code):
+        self.money_inserted = 0
+        item = self.items_dictionary[product_code]
+        while self.money_inserted < item['stored_price']:
+            print(f"You've inserted ${self.money_inserted:.2f} into the machine so far.")
+            while True:
+                try:
+                    money_to_insert = float(input("Please enter the amount of money you'd like to insert: "))
+                    self.insert_cash(money_to_insert)
+                except ValueError:
+                    print("That isn't a valid coin/note")
+                else:
+                    break
+        print(f"Thank you! Please take your \"{item['name']}\".")
+        print(f"The remaining change in the machine is £{self.money_inserted - item['stored_price']:.2f}.")        
 
     def update_stock(self, code, amount):
         return
 
-    def insert_money(self, money):
-        if money <= 0.00:
+    def insert_cash(self, cash):
+        if not isinstance(cash, money.Coin):
             raise ValueError
-        self.money_inserted += money
+        self.money_inserted +=cash
+
+        # if cash <= 0.00:
+        #     raise ValueError
+        # self.money_inserted += cash
 
 
 VendingMachine()
