@@ -1,1 +1,4 @@
-print("{:.2f}".format(0.5))
+import money
+
+if 0.01==money.OnePence:
+    print("test")
