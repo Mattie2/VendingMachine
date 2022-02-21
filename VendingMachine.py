@@ -50,7 +50,7 @@ class VendingMachine:
             #stores as string to 2 decimal places
             price_string = "{:.2f}".format(price_float)
             if price_float < 1:
-                price_string = f'{(price_string*100):,.0f}p'
+                price_string = f'{(price_float*100):,.0f}p'
             else:
                 price_string = "£"+str(price_string)
             quantity = line_array[2]
@@ -77,6 +77,7 @@ class VendingMachine:
         for product_code,product_info in self.items_dictionary.items():
             #prints out the product code, name, price and quantity
             print(product_code+":"+product_info['name']+" - "+product_info['display_price']+" x "+str(product_info['quantity']))
+        print('\n')
 
     def choose_items(self):        
         """
@@ -84,7 +85,9 @@ class VendingMachine:
         """
         while True:
             #keep asking the user until they dont want anything else
-            code = input("Please enter the product code for the item you would like to enter\n")
+            code = input("Please enter the product code for the item you would like to enter. (Enter 'STOP' to pay for your items)\n")
+            if code == 'stop' or code == 'STOP' or code =='Stop':
+                break
             if code in self.items_dictionary:
                 #check stock to see whether its available
                 if self.chosen_items_dictionary[code]['quantity']>=self.items_dictionary[code]['quantity']:
@@ -95,9 +98,6 @@ class VendingMachine:
                 item = self.items_dictionary[code]
                 #total price is appended to after every selection
                 self.total_price += item['stored_price']
-                more = input("Would you like anything else? Enter yes or no\n")
-                if more == "No" or more == "No" or more == "no":
-                    break
             else:
                 print("That isn't a valid selection")
         print("That will be £{:.2f}".format(self.total_price))
@@ -173,19 +173,19 @@ class VendingMachine:
         money_inserted = self.money_inserted
         price = self.total_price
         change = money_inserted-price
-
-        while change > 0:
+        #checking if change >=0 caused a bug when 1p coins were used
+        while change > 0.01:
             for cash_amount in reversed(Cash.get_valid_cash()):
+                # print("change - "+str(change)+" cash amount - "+str(cash_amount))
                 if change >= cash_amount:
-                    # coin = coin_class()  # Create a coin instance
+                    # Create a cash instance to display user's change
                     cash_object = Cash(cash_amount)
                     if cash_amount<5:
                         coins.append(cash_object)
                     else:
-                        notes.append(cash_object)
+                        notes.append(cash_object)                 
                     change -= cash_amount
                     break
-
         return coins,notes      
 
 #creates an instance of the vending nachine class
