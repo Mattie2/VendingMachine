@@ -1,4 +1,5 @@
 from coin import Cash
+from item import Item
 
 class VendingMachine:
     def __init__(self, stock_file="items.csv"):
@@ -39,44 +40,50 @@ class VendingMachine:
             line = line.replace("\n", "")            
             # change letter every 10 lines and reset number to 0
             if(number > 9):
-                letter = chr(ord(letter+1))
+                letter = chr(ord(letter)+1)
                 number = 0
             code = letter+str(number)
             # csv file format: item_name,item_price, item_quantity
             line_array = line.split(",")
             name = line_array[0]
-            #converts to float
-            price_float = float(line_array[1])          
-            #stores as string to 2 decimal places
-            price_string = "{:.2f}".format(price_float)
-            if price_float < 1:
-                price_string = f'{(price_float*100):,.0f}p'
-            else:
-                price_string = "£"+str(price_string)
+            price = line_array[1]
             quantity = line_array[2]
+            # #converts to float
+            # price_float = float(line_array[1])          
+            # #stores as string to 2 decimal places
+            # price_string = "{:.2f}".format(price_float)
+            # if price_float < 1:
+            #     price_string = f'{(price_float*100):,.0f}p'
+            # else:
+            #     price_string = "£"+str(price_string)
+            # quantity = line_array[2]
             
-            self.items_dictionary[code] = {
-                'name': name,
-                'stored_price': float(price_float), 
-                'display_price': price_string, 
-                'quantity': int(quantity)
-            }
-            self.chosen_items_dictionary[code] = {
-                'name' : name,
-                'stored_price' : float(price_float),
-                'display_price' : price_string,
-                #quantity chosen is initalised to 0 for every item
-                'quantity' : 0
-            }
+            # self.items_dictionary[code] = {
+            #     'name': name,
+            #     'stored_price': float(price_float), 
+            #     'display_price': price_string, 
+            #     'quantity': int(quantity)
+            # }
+            # self.chosen_items_dictionary[code] = {
+            #     'name' : name,
+            #     'stored_price' : float(price_float),
+            #     'display_price' : price_string,
+            #     #quantity chosen is initalised to 0 for every item
+            #     'quantity' : 0
+            # }
+
+            self.items_dictionary[code] = Item(name,price,quantity)
+            self.chosen_items_dictionary[code] = Item(name,price,0)
             number += 1
 
     def display_stock(self):
         """
         Loops through every product by its product code and outputs it to the terminal
         """
-        for product_code,product_info in self.items_dictionary.items():
+        for product_code,product_item in self.items_dictionary.items():
             #prints out the product code, name, price and quantity
-            print(product_code+":"+product_info['name']+" - "+product_info['display_price']+" x "+str(product_info['quantity']))
+            # print(product_code+":"+product_info['name']+" - "+product_info['display_price']+" x "+str(product_info['quantity']))
+            print(product_code+":"+product_item.get_summary())
         print('\n')
 
     def choose_items(self):        
@@ -90,14 +97,17 @@ class VendingMachine:
                 break
             if code in self.items_dictionary:
                 #check stock to see whether its available
-                if self.chosen_items_dictionary[code]['quantity']>=self.items_dictionary[code]['quantity']:
-                    print("We're sorry, but there isn't anymore "+self.chosen_items_dictionary[code]['name'])
+                # if self.chosen_items_dictionary[code]['quantity']>=self.items_dictionary[code]['quantity']:
+                if self.chosen_items_dictionary[code]>=self.items_dictionary[code]:
+                    print("We're sorry, but there isn't anymore "+str(self.chosen_items_dictionary[code]))
                     #restarts the loop from the top 
                     continue
-                self.chosen_items_dictionary[code]['quantity']+=1
+                # self.chosen_items_dictionary[code]['quantity']+=1
+                self.chosen_items_dictionary[code].update_quantity(1)
                 item = self.items_dictionary[code]
                 #total price is appended to after every selection
-                self.total_price += item['stored_price']
+                # self.total_price += item['stored_price']
+                self.total_price += item.get_stored_price()
             else:
                 print("That isn't a valid selection")
         print("That will be £{:.2f}".format(self.total_price))
@@ -127,8 +137,9 @@ class VendingMachine:
                     break        
         itemsString = ""
         for code in self.chosen_items_dictionary:
-            if self.chosen_items_dictionary[code]['quantity']>0:
-                itemsString += self.chosen_items_dictionary[code]['name']+" x "+str(self.chosen_items_dictionary[code]['quantity'])+ " "
+            # if self.chosen_items_dictionary[code]['quantity']>0:
+            if self.chosen_items_dictionary[code].get_quantity()>0:
+                itemsString += str(self.chosen_items_dictionary[code])+" x "+str(self.chosen_items_dictionary[code].get_quantity())+ " "
         print(f"Thank you! Please take your items:")
         print(itemsString)
         coins,notes = self.get_change()        
@@ -146,10 +157,12 @@ class VendingMachine:
         #here take quantity of selected stock away from self.items_dictionary. Then write the dictionary back into the csv file
         csvfile = ""
         for code in self.items_dictionary:
-            quantity = self.chosen_items_dictionary[code]['quantity']
+            # quantity = self.chosen_items_dictionary[code]['quantity']
             #takes the quantity of each item chosen away from the total quantity of that item
-            self.items_dictionary[code]['quantity']-=quantity
-            csvfile+=self.items_dictionary[code]['name']+","+str(self.items_dictionary[code]['stored_price'])+","+str(self.items_dictionary[code]['quantity'])+"\n"
+            # self.items_dictionary[code]['quantity']-=quantity
+            self.items_dictionary[code] -= self.chosen_items_dictionary[code]
+            # csvfile+=self.items_dictionary[code]['name']+","+str(self.items_dictionary[code]['stored_price'])+","+str(self.items_dictionary[code]['quantity'])+"\n"
+            csvfile+=repr(self.items_dictionary[code])+'\n'
         f = open(self.stock_file, "w")
         f.write(csvfile)
         f.close()
