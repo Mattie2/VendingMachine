@@ -39,7 +39,6 @@ class Cash():
         return self.VALID_CASH
 
     @classmethod
-    
     def get_valid_cash_instances(self):
         #returns valid instances of the cash class
         valid_cash = []

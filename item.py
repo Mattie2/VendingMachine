@@ -66,10 +66,3 @@ class Item:
             raise ValueError("Quantity cannot be negative")
         else:
             self.quantity += change
-
-item1 = Item('item1',2,3)
-item12 = Item('item12',2,3)
-# item1.update_quantity(-5)
-# print(repr(item1))
-item3 = item1-item12
-print(repr(item3))
