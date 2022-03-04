@@ -7,18 +7,19 @@ class VendingMachine:
         """
         Create an instance of the vending machine class. Initialises attributes and calls relevant methods.
         """
-        self.chosen = False
-        self.items_dictionary = {}
-        self.chosen_items_dictionary = {}
+        #double underscore ensures all of the attributes are private
+        self.__chosen = False
+        self.__items_dictionary = {}
+        self.__chosen_items_dictionary = {}
         #these are integers - cash values stored as integers
-        self.money_inserted = 0
-        self.total_price = 0
-        self.stock_file = stock_file
+        self.__money_inserted = 0
+        self.__total_price = 0
+        self.__stock_file = stock_file
         self.welcome_message()
         self.get_stock()
         self.display_stock()
         self.choose_items()
-        if self.chosen == True:
+        if self.__chosen == True:
             self.update_stock()
 
     def welcome_message(self):
@@ -39,7 +40,7 @@ class VendingMachine:
         """
         number = 0
         letter = "A"
-        f = open(self.stock_file, "r")
+        f = open(self.__stock_file, "r")
         # loop through every line in the text file
         for line in f:
             # removes any line breaks
@@ -55,15 +56,15 @@ class VendingMachine:
             price = line_array[1]
             quantity = line_array[2]
             # #converts to float        
-            self.items_dictionary[code] = Item(name,price,quantity)
-            self.chosen_items_dictionary[code] = Item(name,price,0)
+            self.__items_dictionary[code] = Item(name,price,quantity)
+            self.__chosen_items_dictionary[code] = Item(name,price,0)
             number += 1
 
     def display_stock(self):
         """
         Loops through every product by its product code and outputs it to the terminal
         """
-        for product_code,product_item in self.items_dictionary.items():
+        for product_code,product_item in self.__items_dictionary.items():
             print(product_code+":"+repr(product_item))
         print('\n')
 
@@ -77,21 +78,21 @@ class VendingMachine:
             code = code.upper()
             if code == 'STOP':
                 break
-            if code in self.items_dictionary:
+            if code in self.__items_dictionary:
                 #check stock to see whether its available
-                if self.chosen_items_dictionary[code]>=self.items_dictionary[code]:
-                    print("We're sorry, but there isn't anymore "+str(self.chosen_items_dictionary[code]))
+                if self.__chosen_items_dictionary[code]>=self.__items_dictionary[code]:
+                    print("We're sorry, but there isn't anymore "+str(self.__chosen_items_dictionary[code]))
                     #restarts the loop from the top 
                     continue
-                self.chosen_items_dictionary[code].update_quantity(1)
-                item = self.items_dictionary[code]
-                self.chosen=True
+                self.__chosen_items_dictionary[code].update_quantity(1)
+                item = self.__items_dictionary[code]
+                self.__chosen=True
                 #total price is appended to after every selection
-                self.total_price += item.get_price_pennies()
+                self.__total_price += item.get_price_pennies()
             else:
                 print("That isn't a valid selection")
-        if self.chosen:
-            print("\nThat will be £{:.2f}".format(float(self.total_price/100)))
+        if self.__chosen:
+            print("\nThat will be £{:.2f}".format(float(self.__total_price/100)))
             self.take_payment()
 
     def take_payment(self):
@@ -101,9 +102,9 @@ class VendingMachine:
         #loops until user can no longer pay by notes
         coins = False
         try:
-            while self.money_inserted < self.total_price and (self.total_price-self.money_inserted)>=min(Notes.get_valid_cash_pennies()):
+            while self.__money_inserted < self.__total_price and (self.__total_price-self.__money_inserted)>=min(Notes.get_valid_cash_pennies()):
                 # /100 as they're both stored in pennies so they can be integers as floats cause issues
-                print(f"\nYou have £{(self.total_price-self.money_inserted)/100:.2f} left to pay.You've inserted £{self.money_inserted/100:.2f} into the machine so far.")
+                print(f"\nYou have £{(self.__total_price-self.__money_inserted)/100:.2f} left to pay.You've inserted £{self.__money_inserted/100:.2f} into the machine so far.")
                 #this loop ensures the user can enter a new cash amount in if their previous cash amount wasnt valid
                 while True:
                     try:
@@ -128,8 +129,8 @@ class VendingMachine:
 
 
         #loops until user has paid the full amount
-        while self.money_inserted < self.total_price:
-            print(f"\nYou have £{(self.total_price-self.money_inserted)/100:.2f} left to pay. You've inserted £{self.money_inserted/100:.2f} into the machine so far.")
+        while self.__money_inserted < self.__total_price:
+            print(f"\nYou have £{(self.__total_price-self.__money_inserted)/100:.2f} left to pay. You've inserted £{self.__money_inserted/100:.2f} into the machine so far.")
             while True:
                 try:
                     money_to_insert = float(input("Please insert your coins now: "))
@@ -143,9 +144,9 @@ class VendingMachine:
                 else:
                     break                  
         itemsString = ""
-        for code in self.chosen_items_dictionary:
-            if self.chosen_items_dictionary[code].get_quantity()>0:
-                itemsString += str(self.chosen_items_dictionary[code])+" x "+str(self.chosen_items_dictionary[code].get_quantity())+ " "        
+        for code in self.__chosen_items_dictionary:
+            if self.__chosen_items_dictionary[code].get_quantity()>0:
+                itemsString += str(self.__chosen_items_dictionary[code])+" x "+str(self.__chosen_items_dictionary[code].get_quantity())+ " "        
         
         print(f"Thank you! Please take your items:")
         print(itemsString)
@@ -162,13 +163,13 @@ class VendingMachine:
         """
         This is called after the user has payed for their items. It updates the csv file with the new amounts.
         """
-        #here take quantity of selected stock away from self.items_dictionary. Then write the dictionary back into the csv file
+        #here take quantity of selected stock away from self.__items_dictionary. Then write the dictionary back into the csv file
         csvfile = ""
-        for code in self.items_dictionary:
+        for code in self.__items_dictionary:
             #takes the quantity of each item chosen away from the total quantity of that item
-            self.items_dictionary[code] -= self.chosen_items_dictionary[code]
-            csvfile+=self.items_dictionary[code].get_summary()+'\n'
-        f = open(self.stock_file, "w")
+            self.__items_dictionary[code] -= self.__chosen_items_dictionary[code]
+            csvfile+=self.__items_dictionary[code].get_summary()+'\n'
+        f = open(self.__stock_file, "w")
         f.write(csvfile)
         f.close()
         print("The vending machine stock has been updated")
@@ -181,20 +182,20 @@ class VendingMachine:
         if notes:
             #a value error will be returned if the cash parameter is invalid
             Notes(notes)
-            self.money_inserted +=int(notes*100)
+            self.__money_inserted +=int(notes*100)
 
         if coins:
             #a value error will be returned if the cash parameter is invalid
             Coins(coins)
-            self.money_inserted +=int(coins*100)
+            self.__money_inserted +=int(coins*100)
 
     def get_change(self):
         """
         Returns change representing positive balance. The largest
         denominations are always used first.
         """
-        money_inserted = self.money_inserted
-        price = self.total_price
+        money_inserted = self.__money_inserted
+        price = self.__total_price
         change = money_inserted-price
         #checking if change >=0 caused a bug when 1p coins were used
 
