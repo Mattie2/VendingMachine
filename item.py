@@ -36,6 +36,13 @@ class Item:
         self.__quantity -= other.get_quantity()
         return self
 
+    def __add__(self,other) :
+        """
+        Defines behaviour when two instances of the class are added together
+        """
+        self.__quantity += other.get_quantity()
+        return self        
+
     def __lt__(self, other):
         """
         Compares whether one instance of the item class is less than the other
