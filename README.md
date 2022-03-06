@@ -10,3 +10,4 @@ CSV file for coins and notes - updated with cash inserted and removed as change.
 # Validation Features
 - Password checking - kills program after 3 incorrect password attempts
 - Stock checking - only allows user to buy item if it's in stock, or theres enough - e.g. if theres only 1 left the user wont be able to buy two
+- Coin/cash checking - the cash and coins will be updated when the user inserts cash, and when change is given. If there is no change available, the user will be notified. If there is only part of the change available, the user will receive as much as possible, along with a message explaining the machine is low on change.
